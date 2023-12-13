@@ -38,19 +38,55 @@ namespace AvaliacaoQuestor.Application.AppServices
 
         public IEnumerable<BoletoViewModel> GetAllWithInterestPercentageCalculated()
         {
+            /*
+             * Melhor fazer assim do que ter o Banco dentro no Boleto, pois imagine
+             * que você está carregando vários boletos: 
+             * teremos dados repetidos de Banco que não são necessários (um Banco por Boleto) e vão ocupar memória à toa.
+             */
             var boletos = _boletoService.GetAll();
             var boletoViewModels = _mapper.Map<List<BoletoViewModel>>(boletos);
 
-            var bancos = _boletoService.GetAll();
-            var 
+            var bancos = _bancoService.GetAll();
+
+            return GetBoletoViewModelsWithInterestCalculated(boletoViewModels, bancos.ToList());
+        }
+
+        public BoletoViewModel GetByIdWithInterestPercentageCalculated(Guid id)
+        {
+            var boleto = _boletoService.GetById(id);
+            var boletoViewModel = _mapper.Map<BoletoViewModel>(boleto);
+            
+            var boletoViewModels = new List<BoletoViewModel>();
+            boletoViewModels.Add(boletoViewModel);
+
+            var bancos = _bancoService.GetAll();
+
+            boletoViewModels = GetBoletoViewModelsWithInterestCalculated(boletoViewModels, bancos.ToList()).ToList();
+
+            return boletoViewModels.FirstOrDefault();
+        }
+
+        private IEnumerable<BoletoViewModel> GetBoletoViewModelsWithInterestCalculated(List<BoletoViewModel> boletoViewModels, List<Banco> bancos)
+        {
+            foreach (var boletoViewModel in boletoViewModels)
+            {
+                if (boletoViewModel.DueDate < DateTime.Today)
+                {
+                    var bancoFromBoleto = bancos.FirstOrDefault(b => b.Id == boletoViewModel.BancoId);
+                    // Para pegar o número de dias corridos e não 12,4 dias, por exemplo, caso a data tenha sido cadastrada com horário
+                    var daysBetweenDates = (int)Math.Ceiling((DateTime.Today - boletoViewModel.DueDate).TotalDays); 
+                    var amountPlusInterest = CalculateInterestByDays(daysBetweenDates, boletoViewModel.Amount, bancoFromBoleto.InterestPercentage);
+
+                    boletoViewModel.AmountToPayByInterestPercentage = amountPlusInterest;
+                }
+            }
 
             return boletoViewModels;
         }
 
-        public BoletoViewModel GetById(Guid id)
+        private decimal CalculateInterestByDays(int numberOfDays, decimal amount, float interestPercentage)
         {
-            var boleto = _boletoService.GetById(id);
-            return _mapper.Map<BoletoViewModel>(boleto);
+            return amount + (amount * ((decimal)interestPercentage / 100)  * numberOfDays);
         }
     }
 }

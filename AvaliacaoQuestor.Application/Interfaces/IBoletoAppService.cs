@@ -11,7 +11,7 @@ namespace AvaliacaoQuestor.Application.Interfaces
     {
         void Add(BoletoPostViewModel boletoPostViewModel);
 
-        BoletoViewModel GetById(Guid id);
+        BoletoViewModel GetByIdWithInterestPercentageCalculated(Guid id);
 
         IEnumerable<BoletoViewModel> GetAllWithInterestPercentageCalculated();
 

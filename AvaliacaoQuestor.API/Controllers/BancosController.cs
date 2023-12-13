@@ -31,9 +31,9 @@ namespace AvaliacaoQuestor.API.Controllers
         [Route("api/bancos")]
         public ActionResult Post([FromBody] BancoPostViewModel bancoPostViewModel)
         {
-            if (bancoPostViewModel == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
             try
