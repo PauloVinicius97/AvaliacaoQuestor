@@ -1,10 +1,13 @@
 ﻿using AvaliacaoQuestor.Application.Interfaces;
 using AvaliacaoQuestor.Application.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AvaliacaoQuestor.API.Controllers
 {
+    [Authorize]
+    [ApiController]
     public class BoletosController : ControllerBase
     {
         private readonly IBoletoAppService _boletoAppService;

@@ -1,9 +1,12 @@
 ﻿using AvaliacaoQuestor.Application.Interfaces;
 using AvaliacaoQuestor.Application.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AvaliacaoQuestor.API.Controllers
 {
+    [Authorize]
+    [ApiController]
     public class BancosController : ControllerBase
     {
         private readonly IBancoAppService _bancoAppService;
